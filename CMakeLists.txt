@@ -24,7 +24,6 @@ include_directories(${FMU_INCLUDE_DIR})
 set(YOUR_LIBRARIES ${YOUR_LIBRARIES} ${FMU_LIBRARY})
 target_link_libraries(simulator ${YOUR_LIBRARIES})
 
-
 if (MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
   target_link_libraries(simulator shlwapi.lib)
