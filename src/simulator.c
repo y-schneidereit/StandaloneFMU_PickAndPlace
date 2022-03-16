@@ -1,14 +1,13 @@
 #include <stdio.h>
 
+
 // model specific constants
-#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+
+
 #define RESOURCE_LOCATION "" // absolut path to the unziped fmu
 
-#ifndef FMI2_FUNCTION_PREFIX
-#define FMI2_FUNCTION_PREFIX msfmu_
-#endif
-
 #include "fmi2Functions.h"
+#include "util.h"
 
 // callback functions
 static void cb_logMessage(fmi2ComponentEnvironment componentEnvironment, fmi2String instanceName, fmi2Status status, fmi2String category, fmi2String message, ...) {
@@ -31,7 +30,9 @@ int main(int argc, char *argv[]) {
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
 	
-	fmi2Component c = msfmu_fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
+	
+
+	fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 	
 	if (!c) return 1;
 
