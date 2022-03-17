@@ -12,9 +12,13 @@
 #pragma comment(lib, "shlwapi.lib")
 #endif
 
-
+#if FMI_VERSION == 1
+#include "FMI1.h"
+#elif FMI_VERSION == 2
 #include "FMI2.h"
-
+#else
+#include "FMI3.h"
+#endif
 
 #include "config.h"
 
@@ -22,18 +26,28 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
-
+#if FMI_VERSION == 1 || FMI_VERSION == 2
 
 #if defined(_WIN32)
 
-#define PLATFORM_BINARY "..\\PickAndPlace\\binaries\\win64\\" xstr(MODEL_IDENTIFIER) ".dll"
+#define PLATFORM_BINARY "PickAndPlace\\binaries\\win64\\" xstr(MODEL_IDENTIFIER) ".dll"
 #elif defined(__APPLE__)
 #define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "/binaries/darwin64/" xstr(MODEL_IDENTIFIER) ".dylib"
 #else
 #define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "/binaries/linux64/" xstr(MODEL_IDENTIFIER) ".so"
 #endif
 
+#else
 
+#if defined(_WIN32)
+#define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "\\binaries\\x86_64-windows\\" xstr(MODEL_IDENTIFIER) ".dll"
+#elif defined(__APPLE__)
+#define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "/binaries/x86_64-darwin/" xstr(MODEL_IDENTIFIER) ".dylib"
+#else
+#define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "/binaries/x86_64-linux/" xstr(MODEL_IDENTIFIER) ".so"
+#endif
+
+#endif
 
 #ifndef min
 #define min(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
@@ -47,10 +61,17 @@
 #define CALL(f) status = f; if (status > FMIOK) goto TERMINATE;
 // end::CheckStatus[]
 
-FILE* createOutputFile(const char* filename);
+FILE *createOutputFile(const char *filename);
 
+#if FMI_VERSION == 1
+static const fmi1Real startTime = 0;
+static const fmi1Real stopTime = DEFAULT_STOP_TIME;
+static const fmi1Real h = FIXED_SOLVER_STEP;
 
-
+static fmi1Boolean eventEncountered;
+static fmi1Boolean earlyReturn;
+static fmi1Real lastSuccessfulTime;
+#elif FMI_VERSION == 2
 static const fmi2Real startTime = 0;
 static const fmi2Real stopTime = DEFAULT_STOP_TIME;
 static const fmi2Real h = FIXED_SOLVER_STEP;
@@ -58,27 +79,43 @@ static const fmi2Real h = FIXED_SOLVER_STEP;
 static fmi2Boolean eventEncountered;
 static fmi2Boolean earlyReturn;
 static fmi2Real lastSuccessfulTime;
+#elif FMI_VERSION == 3
+static const fmi3Float64 startTime = 0;
+static const fmi3Float64 stopTime = DEFAULT_STOP_TIME;
+static const fmi3Float64 h = FIXED_SOLVER_STEP;
 
-
+static fmi3Boolean eventEncountered;
+static fmi3Boolean terminateSimulation;
+static fmi3Boolean earlyReturn;
+static fmi3Float64 lastSuccessfulTime;
+#endif
 
 static FMIStatus status = FMIOK;
-static FILE* outputFile = NULL;
-static FMIInstance* S = NULL;
-static FILE* logFile = NULL;
+static FILE *outputFile = NULL;
+static FMIInstance *S = NULL;
+static FILE *logFile = NULL;
 
 static const char* resourcePath() {
 
     static char path[4096] = "";
 
-
+#if FMI_VERSION == 1
 
 #ifdef _WIN32
-    _fullpath(path, xstr(MODEL_IDENTIFIER) "\\resources\\", 4096);
+    _fullpath(path, xstr(MODEL_IDENTIFIER), 4096);
+#else
+    realpath(xstr(MODEL_IDENTIFIER), path);
+#endif
+
+#else
+
+#ifdef _WIN32
+    _fullpath(path, "PickAndPlace\\resources\\", 4096);
 #else
     realpath(xstr(MODEL_IDENTIFIER) "/resources/", path);
 #endif
 
-
+#endif
 
     return path;
 }
@@ -87,7 +124,7 @@ static const char* resourceURI() {
 
     static char uri[4096] = "";
 
-    const char* path = resourcePath();
+    const char *path = resourcePath();
 
 #ifdef _WIN32
     DWORD length = 4096;
@@ -102,38 +139,38 @@ static const char* resourceURI() {
 
 double nextInputEventTime(double time);
 
-FMIStatus applyStartValues(FMIInstance* S);
+FMIStatus applyStartValues(FMIInstance *S);
 
-FMIStatus applyContinuousInputs(FMIInstance* S, bool afterEvent);
+FMIStatus applyContinuousInputs(FMIInstance *S, bool afterEvent);
 
-FMIStatus applyDiscreteInputs(FMIInstance* S);
+FMIStatus applyDiscreteInputs(FMIInstance *S);
 
-FMIStatus recordVariables(FMIInstance* S, FILE* outputFile);
+FMIStatus recordVariables(FMIInstance *S, FILE *outputFile);
 
-static void logMessage(FMIInstance* instance, FMIStatus status, const char* category, const char* message) {
+static void logMessage(FMIInstance *instance, FMIStatus status, const char *category, const char *message) {
 
-    switch (status) {
-    case FMIOK:
-        printf("[OK] ");
-        break;
-    case FMIWarning:
-        printf("[Warning] ");
-        break;
-    case FMIDiscard:
-        printf("[Discard] ");
-        break;
-    case FMIError:
-        printf("[Error] ");
-        break;
-    case FMIFatal:
-        printf("[Fatal] ");
-        break;
+        switch (status) {
+        case FMIOK:
+            printf("[OK] ");
+            break;
+        case FMIWarning:
+            printf("[Warning] ");
+            break;
+        case FMIDiscard:
+            printf("[Discard] ");
+            break;
+        case FMIError:
+            printf("[Error] ");
+            break;
+        case FMIFatal:
+            printf("[Fatal] ");
+            break;
     }
 
     puts(message);
 }
 
-static void logFunctionCall(FMIInstance* instance, FMIStatus status, const char* message, ...) {
+static void logFunctionCall(FMIInstance *instance, FMIStatus status, const char *message, ...) {
 
     if (!logFile) {
         return;
@@ -207,19 +244,28 @@ static FMIStatus tearDown() {
 
         if (status < FMIError) {
             FMIStatus terminateStatus =
-
-
-
+#if FMI_VERSION == 1 && defined(SIMULATE_CO_SIMULATION)
+                FMI1TerminateSlave(S);
+#elif FMI_VERSION == 1 && defined(SIMULATE_MODEL_EXCHANGE)
+                FMI1Terminate(S);
+#elif FMI_VERSION == 2
                 FMI2Terminate(S);
-
+#elif FMI_VERSION == 3
+                FMI3Terminate(S);
+#endif
             status = max(status, terminateStatus);
         }
 
         if (status < FMIFatal) {
-
-
+#if FMI_VERSION == 1 && defined(SIMULATE_CO_SIMULATION)
+            FMI1FreeSlaveInstance(S);
+#elif FMI_VERSION == 1 && defined(SIMULATE_MODEL_EXCHANGE)
+            FMI1FreeModelInstance(S);
+#elif FMI_VERSION == 2
             FMI2FreeInstance(S);
-
+#elif FMI_VERSION == 3
+            FMI3FreeInstance(S);
+#endif
         }
 
         FMIFreeInstance(S);
@@ -240,11 +286,11 @@ static FMIStatus tearDown() {
 
 double nextInputEventTime(double time) { return INFINITY; }
 
-FMIStatus applyStartValues(FMIInstance* S) { return FMIOK; }
+FMIStatus applyStartValues(FMIInstance *S) { return FMIOK; }
 
-FMIStatus applyContinuousInputs(FMIInstance* S, bool afterEvent) { return FMIOK; }
+FMIStatus applyContinuousInputs(FMIInstance *S, bool afterEvent) { return FMIOK; }
 
-FMIStatus applyDiscreteInputs(FMIInstance* S) { return FMIOK; }
+FMIStatus applyDiscreteInputs(FMIInstance *S) { return FMIOK; }
 
 #endif
 

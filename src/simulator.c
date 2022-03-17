@@ -1,12 +1,9 @@
 #include <stdio.h>
 
+#define FMI_VERSION 2
 
-// model specific constants
+#define RESOURCE_LOCATION ""
 
-
-#define RESOURCE_LOCATION "" // absolut path to the unziped fmu
-
-#include "fmi2Functions.h"
 #include "util.h"
 
 // callback functions
