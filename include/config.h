@@ -3,12 +3,7 @@
 
 // define class name and unique id
 #define MODEL_IDENTIFIER msfmu
-#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
-#define RESOURCE_LOCATION ""
-
-//#define FMI2FUNCTIONPREFIX msfmu_
-#include "fmi2Functions.h"
-
+#define INSTANTIATION_TOKEN "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
 
 #define CO_SIMULATION
 #define MODEL_EXCHANGE
@@ -25,13 +20,14 @@
 #define DEFAULT_STOP_TIME 9
 
 typedef enum {
-    vr_time, vr_x, vr_der_x, vr_k
+    vr_time, vr_h, vr_der_h, vr_v, vr_der_v, vr_g, vr_e, vr_v_min
 } ValueReference;
 
 typedef struct {
-    double x;
-    double der_x;
-    double k;
+    double h;
+    double v;
+    double g;
+    double e;
 } ModelData;
 
 #endif /* config_h */
