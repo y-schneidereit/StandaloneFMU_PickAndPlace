@@ -6,7 +6,7 @@
 #define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
 #define RESOURCE_LOCATION ""
 
-#define FMI2FUNCTIONPREFIX msfmu_
+//#define FMI2FUNCTIONPREFIX msfmu_
 #include "fmi2Functions.h"
 
 
@@ -23,5 +23,15 @@
 
 #define FIXED_SOLVER_STEP 1e-3
 #define DEFAULT_STOP_TIME 9
+
+typedef enum {
+    vr_time, vr_x, vr_der_x, vr_k
+} ValueReference;
+
+typedef struct {
+    double x;
+    double der_x;
+    double k;
+} ModelData;
 
 #endif /* config_h */

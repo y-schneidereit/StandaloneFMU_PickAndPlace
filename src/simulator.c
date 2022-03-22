@@ -25,9 +25,11 @@ int main(int argc, char *argv[]) {
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
 	
-	setUp();
+	fmi2GetTypesPlatform();
+
+	//setUp();
 	//fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
-	FMI2Instantiate("instance1", RESOURCE_LOCATION, FMICoSimulation, GUID, fmi2False, fmi2False);
+	//FMI2Instantiate("instance1", RESOURCE_LOCATION, FMICoSimulation, GUID, fmi2False, fmi2False);
 	
 	//if (!c) return 1;
 

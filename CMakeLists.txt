@@ -9,12 +9,14 @@ add_executable(simulator
   include/FMI.h
   include/FMI2.h
   src/simulator.c
-  src/util.h
-  src/config.h
+  include/util.h
+  include/config.h
   include/FMI.c
   include/FMI2.c
   include/fmi2Functions.c
-)
+  include/model.h
+  include/cosimulation.h
+  include/cosimulation.c)
 
 target_include_directories(simulator PUBLIC
   include
