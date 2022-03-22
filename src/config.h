@@ -3,7 +3,12 @@
 
 // define class name and unique id
 #define MODEL_IDENTIFIER msfmu
- #define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+#define RESOURCE_LOCATION ""
+
+#define FMI2FUNCTIONPREFIX msfmu_
+#include "fmi2Functions.h"
+
 
 #define CO_SIMULATION
 #define MODEL_EXCHANGE

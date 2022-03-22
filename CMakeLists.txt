@@ -11,6 +11,9 @@ add_executable(simulator
   src/simulator.c
   src/util.h
   src/config.h
+  include/FMI.c
+  include/FMI2.c
+  include/fmi2Functions.c
 )
 
 target_include_directories(simulator PUBLIC

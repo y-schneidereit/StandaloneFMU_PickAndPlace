@@ -30,7 +30,7 @@
 
 #if defined(_WIN32)
 
-#define PLATFORM_BINARY "PickAndPlace\\binaries\\win64\\" xstr(MODEL_IDENTIFIER) ".dll"
+#define PLATFORM_BINARY "..\\PickAndPlace\\binaries\\win64\\" xstr(MODEL_IDENTIFIER) ".dll"
 #elif defined(__APPLE__)
 #define PLATFORM_BINARY  xstr(MODEL_IDENTIFIER) "/binaries/darwin64/" xstr(MODEL_IDENTIFIER) ".dylib"
 #else
