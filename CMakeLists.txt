@@ -17,12 +17,16 @@ add_executable(simulator
   include/fmi2Functions.c
   include/model.c
   include/cosimulation.c
-  src/simulator.c
- )
+  
+    include/fmi3Functions.h 
+  include/fmi3FunctionTypes.h
+  include/fmi3PlatformTypes.h
+  src/co_simulation.c
+)
 
 target_include_directories(simulator PUBLIC
   include
-  PickAndPlace
+  PickAndPlace/binaries/win64
 )
 
 if (MSVC)
