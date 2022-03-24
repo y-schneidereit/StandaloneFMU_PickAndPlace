@@ -12,13 +12,13 @@ add_executable(simulator
   include/config.h
   include/model.h
   include/cosimulation.h
+  include/fmi2Functions.c
   include/FMI.c
   include/FMI2.c
-  include/fmi2Functions.c
   include/model.c
   include/cosimulation.c
   src/simulator.c
- )
+  "include/import_static_library.c" "include/fmi3Functions.h" "include/fmi3FunctionTypes.h" "include/fmi3PlatformTypes.h")
 
 target_include_directories(simulator PUBLIC
   include

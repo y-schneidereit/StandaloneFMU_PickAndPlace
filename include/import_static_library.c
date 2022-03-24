@@ -1,11 +1,11 @@
 /* This example demonstrates how to import an FMU implemented as a static library or source code*/
 
 // FMI function prefix (from XML)
-#define FMI3_FUNCTION_PREFIX msfmu_
+#define FMI3_FUNCTION_PREFIX VanDerPol_
 #include "fmi3Functions.h"
 #undef FMI3_FUNCTION_PREFIX
 
-#define INSTANTIATION_TOKEN "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+#define INSTANTIATION_TOKEN "{8c4e810f-3da3-4a00-8276-176fa3c9f000}"
 
 
 static void cb_logMessage(fmi3InstanceEnvironment instanceEnvironment, fmi3Status status, fmi3String category, fmi3String message) {
@@ -14,7 +14,7 @@ static void cb_logMessage(fmi3InstanceEnvironment instanceEnvironment, fmi3Statu
 
 int main(int argc, char* argv[]) {
 
-    fmi3Instance m = msfmu_fmi3InstantiateModelExchange(
+    fmi3Instance m = VanDerPol_fmi3InstantiateModelExchange(
         "instance1",         // instance name
         INSTANTIATION_TOKEN, // instantiation token (from XML)
         NULL,                // resource location
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
     // simulation ...
 
-   msfmu_fmi3FreeInstance(m);
+    VanDerPol_fmi3FreeInstance(m);
 
     return m ? EXIT_SUCCESS : EXIT_FAILURE;
 }
