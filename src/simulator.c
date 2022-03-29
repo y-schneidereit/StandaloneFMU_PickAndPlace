@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
 	fmi2GetRealTYPE* GetRealPtr = NULL;
 	fmi2DoStepTYPE* DoStepPtr = NULL;
 	fmi2TerminateTYPE* TerminatePtr = NULL;
+	fmi2GetTypesPlatformTYPE* GetTypesPlatform = NULL;
+	fmi2GetVersionTYPE* GetVersion = NULL;
 
 	InstantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
 	FreeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
@@ -49,9 +51,11 @@ int main(int argc, char *argv[]) {
 	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
 	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
 	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
+	GetTypesPlatform = GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
+	GetVersion = GetProcAddress(libraryHandle, "fmi2GetVersion");
 
 	if (NULL == InstantiatePtr || NULL == FreeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
-		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr)
+		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr || NULL == GetTypesPlatform || NULL == GetVersion)
 	{
 		return EXIT_FAILURE;
 	}
@@ -59,6 +63,12 @@ int main(int argc, char *argv[]) {
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
+
+	fmi2String platform = GetTypesPlatform();
+	printf("%s\n", platform);
+
+	fmi2String version = GetVersion();
+	printf("%s\n", version);
 
 	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 
