@@ -5,7 +5,7 @@
 
 // model specific constants
 #define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
-#define RESOURCE_LOCATION "file:///C:/Users/schyan01/github/standalonefmu_pickandplace" // absolut path to the unziped fmu
+#define RESOURCE_LOCATION "file:///C:/Users/schyan01/github/StandaloneFMU_PickAndPlace" // absolut path to the unziped fmu
 
 // callback functions
 static void cb_logMessage(fmi2ComponentEnvironment componentEnvironment, fmi2String instanceName, fmi2Status status, fmi2String category, fmi2String message, ...) {
