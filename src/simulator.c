@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
 	fmi2String version = GetVersion();
 	printf("%s\n", version);
-
+	
 	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 
 	/*if (!c) return 1;
