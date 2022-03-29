@@ -17,17 +17,20 @@ static void cb_freeMemory(void* obj) {
 	free(obj);
 }
 
-#define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
+//#define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
 
 int main(int argc, char *argv[]) {
 
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
-
+	/*
 	setUp();
-	//FMI2Instantiate(S, resourceURI(), fmi2CoSimulation, INSTANTIATION_TOKEN, fmi2False, fmi2False);
-	
+	FMI2Instantiate(S, resourceURI(), fmi2CoSimulation, INSTANTIATION_TOKEN, fmi2False, fmi2False);
+	*/
+
+	//fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, INSTANTIATION_TOKEN, "", &callbacks, fmi2False, fmi2False);
+
 	//if (!c) return 1;
 
 	//fmi2Real Time = 0;

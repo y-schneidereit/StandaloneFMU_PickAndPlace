@@ -22,7 +22,7 @@ add_executable(simulator
 
 target_include_directories(simulator PUBLIC
   include
-  PickAndPlace
+  PickAndPlace/binaries/win64
 )
 
 if (MSVC)
