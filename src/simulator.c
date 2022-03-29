@@ -4,7 +4,7 @@
 #include "fmi2Functions.h"
 
 // model specific constants
-#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1646036875.8419533}"
 #define RESOURCE_LOCATION "file:///C:/Users/schyan01/github/StandaloneFMU_PickAndPlace" // absolut path to the unziped fmu
 
 // callback functions
@@ -23,7 +23,7 @@ static void cb_freeMemory(void* obj) {
 #define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
 
 int main(int argc, char *argv[]) {
-	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_PickAndPlace\\PickAndPlace\\binaries\\win64\\msfmu.dll");
+	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_PickAndPlace\\PickAndPlace_2\\binaries\\win64\\msfmu.dll");
 
 	if (!libraryHandle)
 	{
@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
 	{
 		return EXIT_FAILURE;
 	}
+
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
