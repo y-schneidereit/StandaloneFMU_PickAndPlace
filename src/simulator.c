@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <Windows.h>
 
-#define FMI_VERSION 2
+#include "fmi2Functions.h"
 
-#include "util.h"
+// model specific constants
+#define GUID "{Altair-MotionView: 19926_PicknPlace2__MKS.fmu: 1645625003.7462988}"
+#define RESOURCE_LOCATION "file:///C:/Users/schyan01/github/standalonefmu_pickandplace" // absolut path to the unziped fmu
 
 // callback functions
 static void cb_logMessage(fmi2ComponentEnvironment componentEnvironment, fmi2String instanceName, fmi2Status status, fmi2String category, fmi2String message, ...) {
@@ -17,32 +20,60 @@ static void cb_freeMemory(void* obj) {
 	free(obj);
 }
 
-//#define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
+#define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
 
 int main(int argc, char *argv[]) {
+	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_PickAndPlace\\PickAndPlace\\binaries\\win64\\msfmu.dll");
 
+	if (!libraryHandle)
+	{
+		return EXIT_FAILURE;
+	}
+
+	fmi2InstantiateTYPE* InstantiatePtr = NULL;
+	fmi2FreeInstanceTYPE* FreeInstancePtr = NULL;
+	fmi2SetupExperimentTYPE* SetupExperimentPtr = NULL;
+	fmi2EnterInitializationModeTYPE* EnterInitializationModePtr = NULL;
+	fmi2ExitInitializationModeTYPE* ExitInitializationModePtr = NULL;
+	fmi2SetRealTYPE* SetRealPtr = NULL;
+	fmi2GetRealTYPE* GetRealPtr = NULL;
+	fmi2DoStepTYPE* DoStepPtr = NULL;
+	fmi2TerminateTYPE* TerminatePtr = NULL;
+
+	InstantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
+	FreeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
+	SetupExperimentPtr = GetProcAddress(libraryHandle, "fmi2SetupExperiment");
+	EnterInitializationModePtr = GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
+	ExitInitializationModePtr = GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
+	SetRealPtr = GetProcAddress(libraryHandle, "fmi2SetReal");
+	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
+	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
+	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
+
+	if (NULL == InstantiatePtr || NULL == FreeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
+		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr)
+	{
+		return EXIT_FAILURE;
+	}
 	fmi2Status status = fmi2OK;
 
 	fmi2CallbackFunctions callbacks = {cb_logMessage, cb_allocateMemory, cb_freeMemory, NULL, NULL};
-	/*
-	setUp();
-	FMI2Instantiate(S, resourceURI(), fmi2CoSimulation, INSTANTIATION_TOKEN, fmi2False, fmi2False);
-	*/
 
-	//fmi2Component c = fmi2Instantiate("instance1", fmi2CoSimulation, INSTANTIATION_TOKEN, "", &callbacks, fmi2False, fmi2False);
+	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
 
-	//if (!c) return 1;
+	/*if (!c) return 1;
 
-	//fmi2Real Time = 0;
-	//fmi2Real stepSize = 0.5;
-	//fmi2Real stopTime = 9;
-	/*
+	fmi2Real Time = 0;
+	fmi2Real stepSize = 1;
+	fmi2Real stopTime = 10;
+
 	// Informs the FMU to setup the experiment. Must be called after fmi2Instantiate and befor fmi2EnterInitializationMode
-	CHECK_STATUS(fmi2SetupExperiment(c, fmi2False, 0, Time, fmi2False, 0));
-	
-	// Informs the FMU to enter Initialization Mode.
-	CHECK_STATUS(fmi2EnterInitializationMode(c));
+	CHECK_STATUS(SetupExperimentPtr(c, fmi2False, 0, Time, fmi2False, 0));
 
+	// Informs the FMU to enter Initialization Mode.
+	CHECK_STATUS(EnterInitializationModePtr(c));
+
+	/*
 	fmi2ValueReference u_ref = 0;
 	fmi2Boolean u = 0;
 
@@ -81,14 +112,14 @@ int main(int argc, char *argv[]) {
 		}
 
 		zaehler++;
-	}
+	}*/
 
 TERMINATE:
 
 	// clean up
 	if (status < fmi2Fatal) {
-		fmi2FreeInstance(c);
+		//freeInstancePtr(c);
 	}
-	*/
+	
 	return status;
 }
