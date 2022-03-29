@@ -132,5 +132,7 @@ TERMINATE:
 		//freeInstancePtr(c);
 	}
 	
+	FreeLibrary(libraryHandle);
+
 	return status;
 }
