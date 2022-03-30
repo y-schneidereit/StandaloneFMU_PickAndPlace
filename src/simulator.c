@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
 	fmi2SetupExperimentTYPE* SetupExperimentPtr = NULL;
 	fmi2EnterInitializationModeTYPE* EnterInitializationModePtr = NULL;
 	fmi2ExitInitializationModeTYPE* ExitInitializationModePtr = NULL;
+	fmi2TerminateTYPE* TerminatePtr = NULL;
 	fmi2SetRealTYPE* SetRealPtr = NULL;
 	fmi2GetRealTYPE* GetRealPtr = NULL;
 	fmi2DoStepTYPE* DoStepPtr = NULL;
-	fmi2TerminateTYPE* TerminatePtr = NULL;
 	fmi2GetTypesPlatformTYPE* GetTypesPlatform = NULL;
 	fmi2GetVersionTYPE* GetVersion = NULL;
 
@@ -47,10 +47,10 @@ int main(int argc, char *argv[]) {
 	SetupExperimentPtr = GetProcAddress(libraryHandle, "fmi2SetupExperiment");
 	EnterInitializationModePtr = GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
 	ExitInitializationModePtr = GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
+	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
 	SetRealPtr = GetProcAddress(libraryHandle, "fmi2SetReal");
 	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
 	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
-	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
 	GetTypesPlatform = GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
 	GetVersion = GetProcAddress(libraryHandle, "fmi2GetVersion");
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	fmi2String version = GetVersion();
 	printf("%s\n", version);
 	
-	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2False);
+	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2True);
 
 	if (!c) return 1;
 
@@ -80,24 +80,30 @@ int main(int argc, char *argv[]) {
 	fmi2Real stopTime = 9;
 	
 	// Informs the FMU to setup the experiment. Must be called after fmi2Instantiate and befor fmi2EnterInitializationMode
-	CHECK_STATUS(SetupExperimentPtr(c, fmi2True, tolerance, Time, fmi2True, stopTime));
+	CHECK_STATUS(SetupExperimentPtr(c, fmi2False, tolerance, Time, fmi2False, stopTime));
 	
 	// Informs the FMU to enter Initialization Mode.
-	//CHECK_STATUS(EnterInitializationModePtr(c));
+	CHECK_STATUS(EnterInitializationModePtr(c));
 
+	fmi2ValueReference z_command_ref = 0;
+	fmi2Real z_command = 0;
+
+	fmi2ValueReference z_override_ref = 1;
+	fmi2Real z_override = 0;
+
+	fmi2ValueReference y_command_ref = 2;
+	fmi2Real y_command = 0;
+	
+	fmi2ValueReference y_override_ref = 3;
+	fmi2Real y_override = 0;
+
+	CHECK_STATUS(SetRealPtr(c, &z_command_ref, 1, &z_command));
+	CHECK_STATUS(SetRealPtr(c, &z_override_ref, 1, &z_override));
+	CHECK_STATUS(SetRealPtr(c, &y_command_ref, 1, &y_command));
+	CHECK_STATUS(SetRealPtr(c, &y_override_ref, 1, &y_override));
+
+	CHECK_STATUS(ExitInitializationModePtr(c));
 	/*
-	fmi2ValueReference u_ref = 0;
-	fmi2Boolean u = 0;
-
-	fmi2ValueReference T_ref = 1;
-	fmi2Boolean T;
-	
-	fmi2Real zaehler = 0;
-
-	CHECK_STATUS(fmi2SetBoolean(c, &u_ref, 1, &u));
-
-	CHECK_STATUS(fmi2ExitInitializationMode(c));
-	
 	printf("time, u, T\n");*/
 
 	//for (int nSteps = 0; nSteps <= 20; nSteps++) {
@@ -108,7 +114,7 @@ int main(int argc, char *argv[]) {
 		//CHECK_STATUS(fmi2SetBoolean(c, &u_ref, 1, &u));
 
 		// perform a simulation step
-		CHECK_STATUS(DoStepPtr(c, Time, stepSize, fmi2True));	//The computation of a time step is started.
+		//CHECK_STATUS(DoStepPtr(c, Time, stepSize, fmi2True));	//The computation of a time step is started.
 		
 		// get an output
 		//CHECK_STATUS(fmi2GetBoolean(c, &T_ref, 1, &T));
@@ -117,7 +123,7 @@ int main(int argc, char *argv[]) {
 	//}
 
 TERMINATE:
-
+	TerminatePtr(c);
 	// clean up
 	if (status < fmi2Fatal) {
 		FreeInstancePtr(c);
