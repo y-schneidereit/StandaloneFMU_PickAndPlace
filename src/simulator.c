@@ -54,8 +54,17 @@ int main(int argc, char *argv[]) {
 	GetTypesPlatform = GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
 	GetVersion = GetProcAddress(libraryHandle, "fmi2GetVersion");
 
-	if (NULL == InstantiatePtr || NULL == FreeInstancePtr || NULL == SetupExperimentPtr || NULL == EnterInitializationModePtr || NULL == ExitInitializationModePtr
-		|| NULL == SetRealPtr || NULL == GetRealPtr || NULL == DoStepPtr || NULL == TerminatePtr || NULL == GetTypesPlatform || NULL == GetVersion)
+	if (NULL == InstantiatePtr || 
+		NULL == FreeInstancePtr || 
+		NULL == SetupExperimentPtr || 
+		NULL == EnterInitializationModePtr || 
+		NULL == ExitInitializationModePtr || 
+		NULL == SetRealPtr || 
+		NULL == GetRealPtr || 
+		NULL == DoStepPtr || 
+		NULL == TerminatePtr || 
+		NULL == GetTypesPlatform || 
+		NULL == GetVersion)
 	{
 		return EXIT_FAILURE;
 	}
@@ -72,7 +81,10 @@ int main(int argc, char *argv[]) {
 	
 	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2True);
 
-	if (!c) return 1;
+	if (!c)
+	{
+		return EXIT_FAILURE;
+	}
 
 	fmi2Real Time = 0;
 	fmi2Real stepSize = 1;
@@ -121,9 +133,9 @@ int main(int argc, char *argv[]) {
 		
 		//printf("%.2f, %d, %d\n", Time, u, T);
 	//}
-
+	
 TERMINATE:
-	TerminatePtr(c);
+	//TerminatePtr(c);
 	// clean up
 	if (status < fmi2Fatal) {
 		FreeInstancePtr(c);
