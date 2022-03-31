@@ -42,17 +42,17 @@ int main(int argc, char *argv[]) {
 	fmi2GetTypesPlatformTYPE* GetTypesPlatform = NULL;
 	fmi2GetVersionTYPE* GetVersion = NULL;
 
-	InstantiatePtr = GetProcAddress(libraryHandle, "fmi2Instantiate");
-	FreeInstancePtr = GetProcAddress(libraryHandle, "fmi2FreeInstance");
-	SetupExperimentPtr = GetProcAddress(libraryHandle, "fmi2SetupExperiment");
-	EnterInitializationModePtr = GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
-	ExitInitializationModePtr = GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
-	TerminatePtr = GetProcAddress(libraryHandle, "fmi2Terminate");
-	SetRealPtr = GetProcAddress(libraryHandle, "fmi2SetReal");
-	GetRealPtr = GetProcAddress(libraryHandle, "fmi2GetReal");
-	DoStepPtr = GetProcAddress(libraryHandle, "fmi2DoStep");
-	GetTypesPlatform = GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
-	GetVersion = GetProcAddress(libraryHandle, "fmi2GetVersion");
+	InstantiatePtr = (fmi2InstantiateTYPE*) GetProcAddress(libraryHandle, "fmi2Instantiate");
+	FreeInstancePtr = (fmi2FreeInstanceTYPE*) GetProcAddress(libraryHandle, "fmi2FreeInstance");
+	SetupExperimentPtr = (fmi2SetupExperimentTYPE*) GetProcAddress(libraryHandle, "fmi2SetupExperiment");
+	EnterInitializationModePtr = (fmi2EnterInitializationModeTYPE*) GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
+	ExitInitializationModePtr = (fmi2ExitInitializationModeTYPE*) GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
+	TerminatePtr = (fmi2TerminateTYPE*) GetProcAddress(libraryHandle, "fmi2Terminate");
+	SetRealPtr = (fmi2SetRealTYPE*) GetProcAddress(libraryHandle, "fmi2SetReal");
+	GetRealPtr = (fmi2GetRealTYPE*) GetProcAddress(libraryHandle, "fmi2GetReal");
+	DoStepPtr = (fmi2DoStepTYPE*) GetProcAddress(libraryHandle, "fmi2DoStep");
+	GetTypesPlatform = (fmi2GetTypesPlatformTYPE*) GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
+	GetVersion = (fmi2GetVersionTYPE*) GetProcAddress(libraryHandle, "fmi2GetVersion");
 
 	if (NULL == InstantiatePtr || 
 		NULL == FreeInstancePtr || 
@@ -114,12 +114,12 @@ int main(int argc, char *argv[]) {
 	CHECK_STATUS(SetRealPtr(c, &y_command_ref, 1, &y_command));
 	CHECK_STATUS(SetRealPtr(c, &y_override_ref, 1, &y_override));
 
-	CHECK_STATUS(ExitInitializationModePtr(c));
+	//CHECK_STATUS(ExitInitializationModePtr(c));
 	/*
 	printf("time, u, T\n");*/
 
-	//for (int nSteps = 0; nSteps <= 20; nSteps++) {
-
+	//for (int nSteps = 0; nSteps <= 20; nSteps++)
+	{
 		//Time = nSteps * stepSize;
 
 		// set an input
@@ -133,9 +133,9 @@ int main(int argc, char *argv[]) {
 		
 		//printf("%.2f, %d, %d\n", Time, u, T);
 	//}
-	
-TERMINATE:
 	//TerminatePtr(c);
+
+TERMINATE:
 	// clean up
 	if (status < fmi2Fatal) {
 		FreeInstancePtr(c);
