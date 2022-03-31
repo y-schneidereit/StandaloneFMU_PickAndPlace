@@ -1,0 +1,86 @@
+$--------------------------------------------------------------------------UNITS
+[UNITS]
+LENGTH=NEWTON
+FORCE=METER
+MASS=KILOGRAM
+TIME=SECOND
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Bewegt Arm - Kinetische Energie'
+ID= 70000087
+X= 'KE'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Bewegt Lagerbock - Kinetische Energie'
+ID= 70000094
+X= 'KE'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Z-Achse - Kinematic Output'
+ID= 70000125
+X= 'Displacement'
+Y= 'Velocity'
+Z= 'Acceleration'
+R1= 'Jerk'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Z-Achse - Leistungsabgabe'
+ID= 70000126
+X= 'Power'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Z-Achse - Controller Output'
+ID= 70000127
+X= 'Desired'
+Y= 'Actual'
+Z= 'Error'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Z-Achse - Output'
+ID= 70000128
+X= 'Force'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Y-Achse - Kinematic Output'
+ID= 70000169
+X= 'Displacement'
+Y= 'Velocity'
+Z= 'Acceleration'
+R1= 'Jerk'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Y-Achse - Leistungsabgabe'
+ID= 70000170
+X= 'Power'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Y-Achse - Controller Output'
+ID= 70000171
+X= 'Desired'
+Y= 'Actual'
+Z= 'Error'
+MAG= 'MAG'
+RMAG= 'RMAG'
+$------------------------------------------------------------------------REQUEST
+[REQUEST]
+NAME= 'Aktuator Y-Achse - Output'
+ID= 70000172
+X= 'Force'
+MAG= 'MAG'
+RMAG= 'RMAG'
