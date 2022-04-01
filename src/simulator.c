@@ -93,9 +93,10 @@ int main(int argc, char *argv[]) {
 	
 	// Informs the FMU to setup the experiment. Must be called after fmi2Instantiate and befor fmi2EnterInitializationMode
 	CHECK_STATUS(SetupExperimentPtr(c, fmi2False, tolerance, Time, fmi2False, stopTime));
-	
+	HRESULT hrReturnVal;
+	hrReturnVal = EnterInitializationModePtr(c);
 	// Informs the FMU to enter Initialization Mode.
-	CHECK_STATUS(EnterInitializationModePtr(c));
+	//CHECK_STATUS(EnterInitializationModePtr(c));
 
 	fmi2ValueReference z_command_ref = 0;
 	fmi2Real z_command = 0;
@@ -116,10 +117,10 @@ int main(int argc, char *argv[]) {
 
 	//CHECK_STATUS(ExitInitializationModePtr(c));
 	/*
-	printf("time, u, T\n");*/
+	printf("time, u, T\n");
 
 	//for (int nSteps = 0; nSteps <= 20; nSteps++)
-	{
+	//{
 		//Time = nSteps * stepSize;
 
 		// set an input
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
 		
 		//printf("%.2f, %d, %d\n", Time, u, T);
 	//}
-	//TerminatePtr(c);
+	//TerminatePtr(c);*/
 
 TERMINATE:
 	// clean up
