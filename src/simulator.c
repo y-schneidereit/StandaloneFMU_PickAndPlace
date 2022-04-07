@@ -22,7 +22,42 @@ static void cb_freeMemory(void* obj) {
 
 #define CHECK_STATUS(S) { status = S; if (status != fmi2OK) goto TERMINATE; }
 
-int main(int argc, char *argv[]) {
+#include <strsafe.h>
+void ErrorExit(LPTSTR lpszFunction)
+{
+	// Retrieve the system error message for the last-error code
+
+	LPVOID lpMsgBuf;
+	LPVOID lpDisplayBuf;
+	DWORD dw = GetLastError();
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dw,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf,
+		0, NULL);
+
+	// Display the error message and exit the process
+
+	lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+		(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+	StringCchPrintf((LPTSTR)lpDisplayBuf,
+		LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+		TEXT("%s failed with error %d: %s"),
+		lpszFunction, dw, lpMsgBuf);
+	MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
+
+	LocalFree(lpMsgBuf);
+	LocalFree(lpDisplayBuf);
+	ExitProcess(dw);
+}
+
+int main(int argc, char *argv[]) 
+{
 	HMODULE libraryHandle = LoadLibraryA("C:\\Users\\schyan01\\github\\StandaloneFMU_PickAndPlace\\PickUndPlace\\binaries\\win64\\msfmu.dll");
 
 	if (!libraryHandle)
@@ -38,31 +73,37 @@ int main(int argc, char *argv[]) {
 	fmi2TerminateTYPE* TerminatePtr = NULL;
 	fmi2SetRealTYPE* SetRealPtr = NULL;
 	fmi2GetRealTYPE* GetRealPtr = NULL;
+	fmi2SetBooleanTYPE* SetBooleanPtr = NULL;
+	fmi2GetBooleanTYPE* GetBooleanPtr = NULL;
 	fmi2DoStepTYPE* DoStepPtr = NULL;
 	fmi2GetTypesPlatformTYPE* GetTypesPlatform = NULL;
 	fmi2GetVersionTYPE* GetVersion = NULL;
 
 	InstantiatePtr = (fmi2InstantiateTYPE*) GetProcAddress(libraryHandle, "fmi2Instantiate");
 	FreeInstancePtr = (fmi2FreeInstanceTYPE*) GetProcAddress(libraryHandle, "fmi2FreeInstance");
-	SetupExperimentPtr = (fmi2SetupExperimentTYPE*) GetProcAddress(libraryHandle, "fmi2SetupExperiment");
+	SetupExperimentPtr =  (fmi2SetupExperimentTYPE*) GetProcAddress(libraryHandle, "fmi2SetupExperiment");
 	EnterInitializationModePtr = (fmi2EnterInitializationModeTYPE*) GetProcAddress(libraryHandle, "fmi2EnterInitializationMode");
 	ExitInitializationModePtr = (fmi2ExitInitializationModeTYPE*) GetProcAddress(libraryHandle, "fmi2ExitInitializationMode");
 	TerminatePtr = (fmi2TerminateTYPE*) GetProcAddress(libraryHandle, "fmi2Terminate");
 	SetRealPtr = (fmi2SetRealTYPE*) GetProcAddress(libraryHandle, "fmi2SetReal");
 	GetRealPtr = (fmi2GetRealTYPE*) GetProcAddress(libraryHandle, "fmi2GetReal");
+	SetBooleanPtr = (fmi2SetBooleanTYPE*) GetProcAddress(libraryHandle, "fmi2SetBoolean");
+	GetBooleanPtr = (fmi2GetBooleanTYPE*) GetProcAddress(libraryHandle, "fmi2GetBoolean");
 	DoStepPtr = (fmi2DoStepTYPE*) GetProcAddress(libraryHandle, "fmi2DoStep");
 	GetTypesPlatform = (fmi2GetTypesPlatformTYPE*) GetProcAddress(libraryHandle, "fmi2GetTypesPlatform");
 	GetVersion = (fmi2GetVersionTYPE*) GetProcAddress(libraryHandle, "fmi2GetVersion");
 
-	if (NULL == InstantiatePtr || 
-		NULL == FreeInstancePtr || 
-		NULL == SetupExperimentPtr || 
-		NULL == EnterInitializationModePtr || 
-		NULL == ExitInitializationModePtr || 
+	if (NULL == InstantiatePtr ||
+		NULL == FreeInstancePtr ||
+		NULL == SetupExperimentPtr ||
+		NULL == EnterInitializationModePtr ||
+		NULL == ExitInitializationModePtr ||
+		NULL == TerminatePtr ||
 		NULL == SetRealPtr || 
 		NULL == GetRealPtr || 
-		NULL == DoStepPtr || 
-		NULL == TerminatePtr || 
+		NULL == SetBooleanPtr || 
+		NULL == GetBooleanPtr || 
+		NULL == DoStepPtr ||  
 		NULL == GetTypesPlatform || 
 		NULL == GetVersion)
 	{
@@ -80,7 +121,7 @@ int main(int argc, char *argv[]) {
 	printf("%s\n", version);
 	
 	fmi2Component c = InstantiatePtr("instance1", fmi2CoSimulation, GUID, RESOURCE_LOCATION, &callbacks, fmi2False, fmi2True);
-
+	
 	if (!c)
 	{
 		return EXIT_FAILURE;
@@ -93,11 +134,12 @@ int main(int argc, char *argv[]) {
 	
 	// Informs the FMU to setup the experiment. Must be called after fmi2Instantiate and befor fmi2EnterInitializationMode
 	CHECK_STATUS(SetupExperimentPtr(c, fmi2False, tolerance, Time, fmi2False, stopTime));
+	
 	HRESULT hrReturnVal;
 	hrReturnVal = EnterInitializationModePtr(c);
 	// Informs the FMU to enter Initialization Mode.
 	//CHECK_STATUS(EnterInitializationModePtr(c));
-
+	//ErrorExit(TEXT("EnterInitializationModePtr"));
 	fmi2ValueReference z_command_ref = 0;
 	fmi2Real z_command = 0;
 
@@ -127,7 +169,7 @@ int main(int argc, char *argv[]) {
 		//CHECK_STATUS(fmi2SetBoolean(c, &u_ref, 1, &u));
 
 		// perform a simulation step
-		//CHECK_STATUS(DoStepPtr(c, Time, stepSize, fmi2True));	//The computation of a time step is started.
+		*///CHECK_STATUS(DoStepPtr(c, Time, stepSize, fmi2True));	//The computation of a time step is started./*
 		
 		// get an output
 		//CHECK_STATUS(fmi2GetBoolean(c, &T_ref, 1, &T));
